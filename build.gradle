@@ -54,3 +54,7 @@ dependencies {
 
     runtime 'org.codehaus.groovy:groovy-all:+'
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.5'
+}

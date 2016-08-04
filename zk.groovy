@@ -1,7 +1,6 @@
 #!/usr/bin/env groovy
-import java.util.logging.FileHandler
-
-import static Constants.*
+import static Constants.getStopScript
+import static Constants.getTargetDir
 
 class Constants {
     static final sourceDir = 'zookeeper'
@@ -21,6 +20,7 @@ def cleanup(args) {
         c longOpt: 'close', 'Stop Zookeeper'
         l longOpt: 'logs', 'Delete all log files'
         d longOpt: 'delete', 'Delete all Zookeeper files'
+        i longOpt: 'interactive', 'Launch ZookeeperCLI'
         h longOpt: 'help', 'Show help'
     }
 
@@ -49,6 +49,11 @@ def cleanup(args) {
     if (options.s) {
         println 'Start Zookeeper'
         startZookeeper()
+    }
+
+    if (options.i) {
+        println 'Launch Zookeeper CLI'
+        startZookeeperCLI()
     }
 }
 
@@ -89,6 +94,10 @@ def deleteLogFiles() {
 }
 
 def startZookeeper() {
+    println 'Not implemented'
+}
+
+def startZookeeperCLI() {
     println 'Not implemented'
 }
 
