@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+echo 'Remove old ZK'
+rm -rf /tmp/zookeeper-3.4.8
+
+echo 'Unpack ZK'
+tar xzf zookeeper/zookeeper-3.4.8.tar.gz -C /tmp/
+
+echo 'Copy config file'
+cp zookeeper/zoo.cfg /tmp/zookeeper-3.4.8/conf/
+
+echo 'Add directory for ZK runtime data'
+mkdir /tmp/zookeeper-3.4.8/data
