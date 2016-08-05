@@ -34,7 +34,7 @@ dependencies {
     testCompile 'org.mockito:mockito-all:+'
     testCompile 'org.assertj:assertj-core:+'
     testCompile 'org.assertj:assertj-guava:+'
-    testCompile 'org.apache.curator:curator-test:3.2.0'
+    testCompile 'org.apache.curator:curator-test:2.11.0'
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
 
