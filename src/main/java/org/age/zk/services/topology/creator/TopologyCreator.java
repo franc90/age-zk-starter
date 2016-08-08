@@ -17,8 +17,13 @@ import static com.google.common.collect.Iterables.getLast;
 @Component
 public class TopologyCreator {
 
+    private final DiscoveryService discoveryService;
+
     @Autowired
-    private DiscoveryService discoveryService;
+    public TopologyCreator(DiscoveryService discoveryService) {
+        this.discoveryService = discoveryService;
+    }
+
 
     public DirectedGraph<String, DefaultEdge> createTopologyGraph() {
         final DefaultDirectedGraph<String, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
@@ -32,9 +37,9 @@ public class TopologyCreator {
         sortedIds
                 .stream()
                 .reduce(getLast(sortedIds), (nodeIdentity1, nodeIdentity2) -> {
-            graph.addEdge(nodeIdentity1, nodeIdentity2);
-            return nodeIdentity2;
-        });
+                    graph.addEdge(nodeIdentity1, nodeIdentity2);
+                    return nodeIdentity2;
+                });
 
         return new UnmodifiableDirectedGraph<>(graph);
     }

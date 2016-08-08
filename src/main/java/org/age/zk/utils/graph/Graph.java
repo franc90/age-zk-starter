@@ -1,4 +1,4 @@
-package org.age.zk.services.topology.creator.structure;
+package org.age.zk.utils.graph;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;

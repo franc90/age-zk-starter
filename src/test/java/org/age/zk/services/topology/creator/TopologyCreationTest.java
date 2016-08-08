@@ -2,7 +2,7 @@ package org.age.zk.services.topology.creator;
 
 import com.google.common.collect.Sets;
 import org.age.zk.services.discovery.DiscoveryService;
-import org.age.zk.services.topology.creator.structure.Graph;
+import org.age.zk.utils.graph.Graph;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.junit.Before;

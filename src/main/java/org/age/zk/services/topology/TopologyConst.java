@@ -6,7 +6,7 @@ public interface TopologyConst {
 
     String TOPOLOGY = "topology";
 
-    String TOPOLOGY_PATH = PathUtils.createPath(TOPOLOGY);
+    String TOPOLOGY_NODE_PATH = PathUtils.createPath(TOPOLOGY);
 
 
 }

@@ -1,7 +1,7 @@
 package org.age.zk.services.topology.creator;
 
-import org.age.zk.services.topology.creator.structure.Graph;
-import org.age.zk.services.topology.creator.structure.Node;
+import org.age.zk.utils.graph.Graph;
+import org.age.zk.utils.graph.Node;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -36,7 +36,7 @@ public class TopologyAssembler {
                 .map(topology::getEdgeTarget)
                 .reduce((x, y) -> x + "," + y)
                 .orElse("");
-        node.setContent(content);
+        node.setData(content);
         return node;
     }
 
@@ -48,7 +48,7 @@ public class TopologyAssembler {
         }
 
         for (Node node : graph.getNodes()) {
-            String[] neighbors = node.getContent().split(",");
+            String[] neighbors = node.getData().split(",");
             for (String neighbor : neighbors) {
                 topology.getEdge(node.getName(), neighbor);
             }

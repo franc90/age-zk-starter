@@ -21,9 +21,9 @@ public class LifecycleServiceImpl implements LifecycleService {
     @Value("${zookeeper.connection.string}")
     private String zookeeperConnectionString;
 
-    private CuratorFramework client;
-
     private AtomicBoolean alive = new AtomicBoolean(false);
+
+    private CuratorFramework client;
 
     @PostConstruct
     public void init() throws InterruptedException {
