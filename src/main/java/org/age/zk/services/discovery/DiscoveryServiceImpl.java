@@ -3,7 +3,6 @@ package org.age.zk.services.discovery;
 import com.google.common.collect.Sets;
 import org.age.zk.services.AbstractService;
 import org.age.zk.services.discovery.watcher.LifecycleWatcher;
-import org.age.zk.utils.ZookeeperUtils;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,38 +16,41 @@ public class DiscoveryServiceImpl extends AbstractService implements DiscoverySe
 
     private static final Logger log = LoggerFactory.getLogger(DiscoveryServiceImpl.class);
 
-    @Autowired
-    private ZookeeperUtils zookeeperUtils;
+    private final LifecycleWatcher lifecycleWatcher;
 
     @Autowired
-    private LifecycleWatcher lifecycleWatcher;
+    public DiscoveryServiceImpl(LifecycleWatcher lifecycleWatcher) {
+        this.lifecycleWatcher = lifecycleWatcher;
+    }
 
     @Override
     public void start() {
         log.debug("Starting discovery service");
-        log.debug("Neighbours: {} ");
         running.set(true);
 
         try {
             createServiceNode(DiscoveryConsts.DISCOVERY_NODE_PATH);
             createMemberNode();
         } catch (Exception e) {
-            log.error("Error while starting discovery service {}", DiscoveryConsts.DISCOVERY_NODE_PATH);
+            log.error("Error while starting discovery service", e);
         }
 
-        zookeeperUtils.setWatcher(DiscoveryConsts.DISCOVERY_NODE_PATH, lifecycleWatcher);
+        zookeeperService.setWatcher(DiscoveryConsts.DISCOVERY_NODE_PATH, lifecycleWatcher);
         log.debug("Discovery service started");
     }
 
     private void createMemberNode() throws Exception {
-        String nodeId = identityService.getNodeId();
-        String result = lifecycleService.getClient()
+        String nodeUUID = identityService.getNodeUUID();
+        String nodeId = zookeeperService.getClient()
                 .create()
                 .creatingParentsIfNeeded()
                 .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
-                .forPath(DiscoveryConsts.DISCOVERY_MEMBER_PATH, nodeId.getBytes());
+                .forPath(DiscoveryConsts.DISCOVERY_MEMBER_PATH, nodeUUID.getBytes());
 
-        log.info("Created member node {}", result);
+        String id = nodeId.substring(nodeId.lastIndexOf("/") + 1);
+        identityService.setNodeId(id);
+
+        log.info("Created member node {}", nodeId);
     }
 
     @Override
@@ -60,11 +62,6 @@ public class DiscoveryServiceImpl extends AbstractService implements DiscoverySe
     @Override
     public void stop() {
         log.debug("Stopping discovery service");
-
-        // TODO cleanup
-//        if (hazelcastInstance.getLifecycleService().isRunning()) {
-//            cleanUp();
-//        }
         running.set(false);
         log.debug("Discovery service stopped");
     }
@@ -76,6 +73,6 @@ public class DiscoveryServiceImpl extends AbstractService implements DiscoverySe
 
     @Override
     public Set<String> getAllMembers() {
-        return Sets.newHashSet(zookeeperUtils.getChildren(DiscoveryConsts.DISCOVERY_NODE_PATH));
+        return Sets.newHashSet(zookeeperService.getChildren(DiscoveryConsts.DISCOVERY_NODE_PATH));
     }
 }

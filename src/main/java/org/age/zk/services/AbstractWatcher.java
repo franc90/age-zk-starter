@@ -1,18 +1,22 @@
 package org.age.zk.services;
 
 import com.google.common.eventbus.EventBus;
-import org.age.zk.utils.ZookeeperUtils;
+import org.age.zk.services.zookeeper.ZookeeperService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PostConstruct;
 
 public abstract class AbstractWatcher {
 
-    protected final ZookeeperUtils zookeeperUtils;
-
-    protected final EventBus eventBus;
+    @Autowired
+    protected ZookeeperService zookeeperService;
 
     @Autowired
-    public AbstractWatcher(ZookeeperUtils zookeeperUtils, EventBus eventBus) {
-        this.zookeeperUtils = zookeeperUtils;
-        this.eventBus = eventBus;
+    protected EventBus eventBus;
+
+    @PostConstruct
+    public void init() {
+        eventBus.register(this);
     }
+
 }

@@ -3,11 +3,12 @@ package org.age.zk.utils.graph;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Graph {
 
-    private List<Node> nodes;
+    private List<Node> nodes = new ArrayList<>();
 
     public List<Node> getNodes() {
         return nodes;

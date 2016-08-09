@@ -50,7 +50,7 @@ public class TopologyAssembler {
         for (Node node : graph.getNodes()) {
             String[] neighbors = node.getData().split(",");
             for (String neighbor : neighbors) {
-                topology.getEdge(node.getName(), neighbor);
+                topology.addEdge(node.getName(), neighbor);
             }
         }
 

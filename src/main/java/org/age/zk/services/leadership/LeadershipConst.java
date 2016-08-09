@@ -1,8 +1,8 @@
-package org.age.zk.services.lifecycle;
+package org.age.zk.services.leadership;
 
 import org.age.zk.utils.PathUtils;
 
-public interface LifecycleConsts {
+public interface LeadershipConst {
 
     String LIFECYCLE = "lifecycle";
 

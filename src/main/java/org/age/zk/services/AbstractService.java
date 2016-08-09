@@ -1,12 +1,9 @@
 package org.age.zk.services;
 
 import com.google.common.eventbus.EventBus;
-import org.age.zk.services.discovery.DiscoveryConsts;
 import org.age.zk.services.identity.IdentityService;
-import org.age.zk.services.lifecycle.LifecycleService;
-import org.apache.curator.framework.CuratorFramework;
+import org.age.zk.services.zookeeper.ZookeeperService;
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.data.Stat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.SmartLifecycle;
 
@@ -19,13 +16,13 @@ public abstract class AbstractService implements SmartLifecycle {
     protected final AtomicBoolean running = new AtomicBoolean(false);
 
     @Autowired
-    protected EventBus eventBus;
-
-    @Autowired
     protected IdentityService identityService;
 
     @Autowired
-    protected LifecycleService lifecycleService;
+    protected ZookeeperService zookeeperService;
+
+    @Autowired
+    protected EventBus eventBus;
 
     @PostConstruct
     public void init() throws Exception {
@@ -43,17 +40,13 @@ public abstract class AbstractService implements SmartLifecycle {
     }
 
     protected void createServiceNode(String nodePath) throws Exception {
-        while (!lifecycleService.isAlive()) {
+        while (!zookeeperService.isAlive()) {
             TimeUnit.MILLISECONDS.sleep(100);
         }
 
-        CuratorFramework client = lifecycleService.getClient();
-        Stat serviceNodeStat = client
-                .checkExists()
-                .forPath(nodePath);
-
-        if (serviceNodeStat == null) {
-            client
+        if (zookeeperService.nodeNotExist(nodePath)) {
+            zookeeperService
+                    .getClient()
                     .create()
                     .withMode(CreateMode.PERSISTENT)
                     .forPath(nodePath);

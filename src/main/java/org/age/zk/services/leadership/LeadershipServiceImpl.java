@@ -1,7 +1,6 @@
 package org.age.zk.services.leadership;
 
 import org.age.zk.services.AbstractService;
-import org.age.zk.services.lifecycle.LifecycleConsts;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
@@ -25,11 +24,11 @@ public class LeadershipServiceImpl extends AbstractService implements Leadership
     @PostConstruct
     public void init() throws InterruptedException {
         log.info("Initializing leadership service");
-        while (!lifecycleService.isAlive()) {
-            log.debug("Initialization: waiting for lifecycleService to start");
+        while (!zookeeperService.isAlive()) {
+            log.debug("Initialization: waiting for zookeeperService to start");
             TimeUnit.MILLISECONDS.sleep(100);
         }
-        leaderSelector = new LeaderSelector(lifecycleService.getClient(), LifecycleConsts.LIFECYCLE_PATH, new LeaderSelectorListener());
+        leaderSelector = new LeaderSelector(zookeeperService.getClient(), LeadershipConst.LIFECYCLE_PATH, new LeaderSelectorListener());
         leaderSelector.autoRequeue();
         log.info("Leadership initialized");
     }
