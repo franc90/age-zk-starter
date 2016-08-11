@@ -3,6 +3,8 @@ package org.age.zk.services.worker;
 import com.google.common.eventbus.Subscribe;
 import org.age.zk.services.AbstractService;
 import org.age.zk.services.leadership.LeadershipService;
+import org.age.zk.services.worker.computation.ComputationManager;
+import org.age.zk.services.worker.event.ExitEvent;
 import org.age.zk.services.worker.event.InitializeEvent;
 import org.age.zk.services.worker.event.StartComputationEvent;
 import org.slf4j.Logger;
@@ -21,6 +23,9 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
 
     @Autowired
     private LeadershipService leadershipService;
+
+    @Autowired
+    private ComputationManager computationManager;
 
     @Override
     public void start() {
@@ -49,6 +54,7 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
     public void stop() {
         log.debug("Stop worker service");
         running.set(false);
+        computationManager.shutdown();
         log.debug("Worker service stopped");
     }
 
@@ -85,6 +91,7 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
 
         log.info("Starting computation");
         setGlobalComputationState(GlobalComputationState.COMPUTING);
+        eventBus.post(new StartComputationEvent());
     }
 
     @Subscribe
@@ -100,8 +107,14 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
         }
 
         workerState = WorkerState.WORKING;
-        // TODO: start work
-        log.debug("EXECUTION STARTED");
+        computationManager.startTask();
+    }
+
+    @Subscribe
+    public void terminate(ExitEvent exitEvent) {
+        log.debug("terminating");
+        computationManager.shutdown();
+        System.exit(0);
     }
 
     private GlobalComputationState getGlobalComputationState() {
