@@ -10,6 +10,7 @@ import org.age.zk.services.topology.creator.TopologyAssembler;
 import org.age.zk.services.topology.creator.TopologyCreator;
 import org.age.zk.services.topology.watcher.TopologyWatcher;
 import org.age.zk.services.topology.watcher.events.TopologyUpdatedEvent;
+import org.age.zk.services.worker.event.InitializeEvent;
 import org.age.zk.utils.graph.Graph;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.zookeeper.CreateMode;
@@ -150,6 +151,10 @@ public class TopologyServiceImpl extends AbstractService implements TopologyServ
         currentTopology = TopologyAssembler.convert(topologyGraph);
 
         sendMessageToNeighbors();
+
+        if (leadershipService.isMaster()) {
+            eventBus.post(new InitializeEvent());
+        }
 
         log.debug("Current topology updated to {}", currentTopology);
     }

@@ -10,7 +10,6 @@ import org.apache.curator.framework.api.transaction.CuratorTransaction;
 import org.apache.curator.framework.api.transaction.CuratorTransactionFinal;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +59,15 @@ public class ZookeeperServiceImpl implements ZookeeperService {
         log.info("Zookeeper state: {}", client.getState());
     }
 
+    @PreDestroy
+    public void cleanup() {
+        alive.set(false);
+        if (client != null) {
+            client.close();
+            log.info("Zookeeper state: {}", client.getState());
+        }
+    }
+
     @Override
     public boolean isAlive() {
         return alive.get();
@@ -72,35 +80,27 @@ public class ZookeeperServiceImpl implements ZookeeperService {
 
     @Override
     public boolean nodeNotExist(String nodePath) {
-        return !nodeExist(nodePath);
+        return !nodeService.nodeExist(nodePath);
     }
 
     @Override
     public boolean nodeExist(String nodePath) {
-        try {
-            Stat nodeStat = client
-                    .checkExists()
-                    .forPath(nodePath);
-            return nodeStat != null;
-        } catch (Exception e) {
-            log.error("Could not check if node exists", e);
-            return false;
-        }
-
+        return nodeService.nodeExist(nodePath);
     }
 
-    @PreDestroy
-    public void cleanup() {
-        alive.set(false);
-        if (client != null) {
-            client.close();
-            log.info("Zookeeper state: {}", client.getState());
-        }
+    @Override
+    public void setData(String nodePath, byte[] data) {
+        nodeService.setData(nodePath, data);
     }
 
     @Override
     public String getData(String nodePath) {
         return nodeService.getData(nodePath);
+    }
+
+    @Override
+    public byte[] getRawData(String nodePath) {
+        return nodeService.getRawData(nodePath);
     }
 
     @Override

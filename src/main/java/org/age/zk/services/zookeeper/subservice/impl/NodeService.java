@@ -5,6 +5,7 @@ import org.age.zk.utils.PathUtils;
 import org.apache.curator.framework.api.transaction.CuratorTransaction;
 import org.apache.curator.framework.api.transaction.CuratorTransactionFinal;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,11 +17,37 @@ public class NodeService extends ZookeeperSubService {
 
     private static final Logger log = LoggerFactory.getLogger(NodeService.class);
 
+    public boolean nodeExist(String nodePath) {
+        try {
+            Stat nodeStat = client
+                    .checkExists()
+                    .forPath(nodePath);
+            return nodeStat != null;
+        } catch (Exception e) {
+            log.error("Could not check if node exists", e);
+            return false;
+        }
+    }
+
+    public void setData(String nodePath, byte[] data) {
+        log.debug("Setting data of {}", nodePath);
+        try {
+            client.setData().forPath(nodePath, data);
+        } catch (Exception e) {
+            throw new RuntimeException("Exception while setting data of " + nodePath, e);
+        }
+    }
+
     public String getData(String nodePath) {
         log.debug("Get data of {} ", nodePath);
+        byte[] rawData = getRawData(nodePath);
+        return new String(rawData);
+    }
+
+    public byte[] getRawData(String nodePath) {
+        log.debug("Get raw data of {} ", nodePath);
         try {
-            byte[] data = client.getData().forPath(nodePath);
-            return new String(data);
+            return client.getData().forPath(nodePath);
         } catch (Exception e) {
             throw new RuntimeException("Exception while getting data of " + nodePath, e);
         }
@@ -81,5 +108,4 @@ public class NodeService extends ZookeeperSubService {
             return null;
         }
     }
-
 }

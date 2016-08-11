@@ -19,7 +19,7 @@ public class SpringConfiguration {
 
     @Bean
     public EventBus eventBus() {
-        return new EventBus();
+        return new EventBus("ZookeeperEventBus");
     }
 
 }

@@ -16,7 +16,11 @@ public interface ZookeeperService {
 
     boolean nodeExist(String nodePath);
 
+    void setData(String nodePath, byte[] data);
+
     String getData(String nodePath);
+
+    byte[] getRawData(String nodePath);
 
     void deleteNode(String nodePath);
 
