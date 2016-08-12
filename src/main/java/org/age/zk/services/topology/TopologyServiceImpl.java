@@ -2,8 +2,6 @@ package org.age.zk.services.topology;
 
 import com.google.common.eventbus.Subscribe;
 import org.age.zk.services.AbstractService;
-import org.age.zk.services.communication.message.Message;
-import org.age.zk.services.communication.watcher.events.SendMessageEvent;
 import org.age.zk.services.discovery.watcher.events.MembersUpdatedEvent;
 import org.age.zk.services.leadership.LeadershipService;
 import org.age.zk.services.topology.creator.TopologyAssembler;
@@ -11,8 +9,8 @@ import org.age.zk.services.topology.creator.TopologyCreator;
 import org.age.zk.services.topology.watcher.TopologyWatcher;
 import org.age.zk.services.topology.watcher.events.TopologyUpdatedEvent;
 import org.age.zk.services.worker.event.InitializeEvent;
+import org.age.zk.utils.TimeUtils;
 import org.age.zk.utils.graph.Graph;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.zookeeper.CreateMode;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -149,34 +146,20 @@ public class TopologyServiceImpl extends AbstractService implements TopologyServ
 
         Graph topologyGraph = zookeeperService.getGraph(TopologyConst.TOPOLOGY_NODE_PATH);
         currentTopology = TopologyAssembler.convert(topologyGraph);
+        log.debug("Current topology updated to {}", currentTopology);
 
-        sendMessageToNeighbors();
+        long timestamp = System.currentTimeMillis();
+        log.info("\n" +
+                        "++++++++++++++++++++++++++++++++++++++++++++\n" +
+                        "Topology CONFIGURED\n" +
+                        "at     {} [{}]\n" +
+                        "++++++++++++++++++++++++++++++++++++++++++++\n",
+                TimeUtils.toString(timestamp),
+                timestamp);
 
         if (leadershipService.isMaster()) {
             eventBus.post(new InitializeEvent());
         }
-
-        log.debug("Current topology updated to {}", currentTopology);
-    }
-
-    private void sendMessageToNeighbors() {
-        Set<String> neighbors = neighbors();
-        if (CollectionUtils.isEmpty(neighbors)) {
-            log.debug("No Neighbors, returning");
-            return;
-        }
-
-        log.debug("Sending message to neighbors");
-        String senderId = identityService.getNodeId();
-        String messageUUID = UUID.randomUUID().toString();
-        long sendTime = System.currentTimeMillis();
-
-        neighbors
-                .stream()
-                .filter(neighbor -> !senderId.equals(neighbor))
-                .map(neighbor -> new Message(senderId, neighbor, messageUUID, sendTime, senderId + ": Topology updated"))
-                .map(SendMessageEvent::new)
-                .forEach(eventBus::post);
     }
 
 }

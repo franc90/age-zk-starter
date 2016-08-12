@@ -6,4 +6,5 @@ public interface DiscoveryService {
 
     Set<String> getAllMembers();
 
+    int getNodesCount();
 }

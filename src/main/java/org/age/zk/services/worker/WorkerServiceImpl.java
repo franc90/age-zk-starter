@@ -2,6 +2,7 @@ package org.age.zk.services.worker;
 
 import com.google.common.eventbus.Subscribe;
 import org.age.zk.services.AbstractService;
+import org.age.zk.services.discovery.DiscoveryService;
 import org.age.zk.services.leadership.LeadershipService;
 import org.age.zk.services.worker.computation.ComputationManager;
 import org.age.zk.services.worker.event.ExitEvent;
@@ -10,6 +11,7 @@ import org.age.zk.services.worker.event.StartComputationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -26,6 +28,12 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
 
     @Autowired
     private ComputationManager computationManager;
+
+    @Autowired
+    private DiscoveryService discoveryService;
+
+    @Value("${cluster.minimal.clients:1}")
+    private int minimalNumberOfClients;
 
     @Override
     public void start() {
@@ -87,11 +95,15 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
             return;
         }
 
-        // todo check if sufficient nodes
+        int nodesInTopology = discoveryService.getNodesCount();
+        if (minimalNumberOfClients > nodesInTopology) {
+            log.info("Waiting for more nodes. [{} of {}]", nodesInTopology, minimalNumberOfClients);
+            return;
+        }
 
         log.info("Starting computation");
         setGlobalComputationState(GlobalComputationState.COMPUTING);
-        eventBus.post(new StartComputationEvent());
+        eventBus.post(new InitializeEvent());
     }
 
     @Subscribe
@@ -113,6 +125,7 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
     @Subscribe
     public void terminate(ExitEvent exitEvent) {
         log.debug("terminating");
+        setGlobalComputationState(GlobalComputationState.FINISHED);
         computationManager.shutdown();
         System.exit(0);
     }

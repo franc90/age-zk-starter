@@ -75,4 +75,10 @@ public class DiscoveryServiceImpl extends AbstractService implements DiscoverySe
     public Set<String> getAllMembers() {
         return Sets.newHashSet(zookeeperService.getChildren(DiscoveryConsts.DISCOVERY_NODE_PATH));
     }
+
+    @Override
+    public int getNodesCount() {
+        Set<String> allMembers = getAllMembers();
+        return allMembers.size();
+    }
 }

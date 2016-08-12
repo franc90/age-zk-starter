@@ -6,7 +6,6 @@ import org.age.zk.services.communication.message.Message;
 import org.age.zk.services.communication.message.MessageSerializer;
 import org.age.zk.services.communication.watcher.CommunicationWatcher;
 import org.age.zk.services.communication.watcher.events.CheckInboxEvent;
-import org.age.zk.services.communication.watcher.events.ReceivedMessageEvent;
 import org.age.zk.services.communication.watcher.events.SendMessageEvent;
 import org.age.zk.utils.PathUtils;
 import org.apache.zookeeper.CreateMode;
@@ -90,6 +89,11 @@ public class CommunicationServiceImpl extends AbstractService implements Communi
     @Subscribe
     public void sendMessage(SendMessageEvent sendMessageEvent) {
         Message message = sendMessageEvent.getMessage();
+        if (message.getRecipientId() == null) {
+            log.warn("Recipient is null. Aborting sending message {}", message);
+            return;
+        }
+
         String path = PathUtils.createPath(CommunicationConst.COMMUNICATION, message.getRecipientId(), CommunicationConst.MESSAGE);
         String json = MessageSerializer.serialize(message);
         log.info("Sending {} to {}", json, path);
@@ -108,8 +112,4 @@ public class CommunicationServiceImpl extends AbstractService implements Communi
         }
     }
 
-    @Subscribe
-    public void receive(ReceivedMessageEvent event) {
-        log.info("Received: {}", event.getMessage().getBody());
-    }
 }
