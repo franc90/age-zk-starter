@@ -2,7 +2,7 @@
 
 Zookeeper version of AgE multi agent distributed computation platform
 
-## instalation 
+## installation 
 
 There are provided two configuration templates - for cluster and standalone deployment
 
