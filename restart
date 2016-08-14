@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+echo 'cd /tmp/zookeeper-3.4.8'
+cd /tmp/zookeeper-3.4.8
+
+echo ''
+echo "./bin/zkServer.sh stop"
+./bin/zkServer.sh stop
+
+echo ''
+echo './bin/zkServer.sh status'
+./bin/zkServer.sh status
+
+echo ''
+echo "cd /tmp"
+cd /tmp
+
+echo ''
+echo 'rm -rf /tmp/zookeeper-3.4.8'
+rm -rf /tmp/zookeeper-3.4.8
+
+echo ''
+echo 'tar xzf /home/alex/workspace/intellij/age-zk-starter/zookeeper/zookeeper-3.4.8.tar.gz -C /tmp/'
+tar xzf /home/alex/workspace/intellij/age-zk-starter/zookeeper/zookeeper-3.4.8.tar.gz -C /tmp/
+
+echo ''
+echo 'cp /home/alex/workspace/intellij/age-zk-starter/zookeeper/zoo.cfg /tmp/zookeeper-3.4.8/conf/'
+cp /home/alex/workspace/intellij/age-zk-starter/zookeeper/zoo.cfg /tmp/zookeeper-3.4.8/conf/
+
+echo ''
+echo 'cd /tmp/zookeeper-3.4.8'
+cd /tmp/zookeeper-3.4.8
+
+echo ''
+echo "./bin/zkServer.sh start"
+./bin/zkServer.sh start
+
+echo ''
+echo './bin/zkServer.sh status'
+./bin/zkServer.sh status
+
+echo ''
+echo "cd /tmp"
+cd /tmp

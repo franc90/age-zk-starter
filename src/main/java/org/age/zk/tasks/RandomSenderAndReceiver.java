@@ -38,7 +38,9 @@ public class RandomSenderAndReceiver extends RandomRecipientMessageSender {
 
     @Subscribe
     public void receiveMessage(ReceivedMessageEvent event) {
+        log.debug("Received to process message {} ", event);
         if (!running) {
+            log.debug("Not running yet");
             return;
         }
 

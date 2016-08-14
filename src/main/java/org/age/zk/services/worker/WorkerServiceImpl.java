@@ -8,6 +8,8 @@ import org.age.zk.services.worker.computation.ComputationManager;
 import org.age.zk.services.worker.event.ExitEvent;
 import org.age.zk.services.worker.event.InitializeEvent;
 import org.age.zk.services.worker.event.StartComputationEvent;
+import org.age.zk.services.worker.watcher.ComputationWatcher;
+import org.age.zk.utils.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
     private ComputationManager computationManager;
 
     @Autowired
+    private ComputationWatcher computationWatcher;
+
+    @Autowired
     private DiscoveryService discoveryService;
 
     @Value("${cluster.minimal.clients:1}")
@@ -46,6 +51,7 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
             log.error("Error starting worker service", e);
             return;
         }
+        zookeeperService.setWatcher(WorkerConst.COMPUTATION_STATE_NODE_PATH, computationWatcher);
 
         eventBus.post(new InitializeEvent());
         log.debug("Worker service started");
@@ -63,7 +69,9 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
         log.debug("Stop worker service");
         running.set(false);
         computationManager.shutdown();
-        log.debug("Worker service stopped");
+        long timestamp = System.currentTimeMillis();
+        String timestampString = TimeUtils.toString(timestamp);
+        log.debug("Worker service stopped at {} [{}]", timestampString, timestamp);
     }
 
     @Override
@@ -85,7 +93,7 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
             eventBus.post(new StartComputationEvent());
             return;
         } else if (globalComputationState == GlobalComputationState.COMPUTING) {
-            log.debug("Cluster already computing - join in!");
+            log.debug("Cluster already set to computing");
             eventBus.post(new StartComputationEvent());
             return;
         }
@@ -103,7 +111,6 @@ public class WorkerServiceImpl extends AbstractService implements WorkerService 
 
         log.info("Starting computation");
         setGlobalComputationState(GlobalComputationState.COMPUTING);
-        eventBus.post(new InitializeEvent());
     }
 
     @Subscribe
