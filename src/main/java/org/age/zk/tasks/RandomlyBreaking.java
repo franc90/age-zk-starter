@@ -1,5 +1,7 @@
 package org.age.zk.tasks;
 
+import org.age.zk.services.identity.IdentityService;
+import org.age.zk.utils.TimeUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +18,15 @@ public class RandomlyBreaking extends SimpleLongRunning {
 
     private final double exceptionProbability;
 
+    private final IdentityService identityService;
+
     @Autowired
     public RandomlyBreaking(@Value("${rand.task.initial.iterations:10}") int initialIterations,
-                            @Value("${rand.task.exception.probability:0.3}") double exceptionProbability) {
+                            @Value("${rand.task.exception.probability:0.3}") double exceptionProbability,
+                            IdentityService identityService) {
         this.initialIterations = initialIterations;
         this.exceptionProbability = exceptionProbability;
+        this.identityService = identityService;
     }
 
     @Override
@@ -28,6 +34,9 @@ public class RandomlyBreaking extends SimpleLongRunning {
         if (iteration > initialIterations) {
             double randomValue = RandomUtils.nextDouble(0.0, 1.0);
             if (randomValue < exceptionProbability) {
+                long timestamp = System.currentTimeMillis();
+                log.warn("{},ext,{},{}", TimeUtils.toString(timestamp), timestamp, identityService.getNodeId());
+
                 log.debug("{} < {}, exiting", randomValue, exceptionProbability);
                 throw new RuntimeException();
             }

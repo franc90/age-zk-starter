@@ -16,6 +16,9 @@ public class ReceivedMessageProcessor {
         String sendTime = TimeUtils.toString(message.getSendTime());
         long receiveTimestamp = System.currentTimeMillis();
         String receiveTime = TimeUtils.toString(receiveTimestamp);
+
+        log.warn("{},rcv,{},{},{}", TimeUtils.toString(receiveTimestamp), receiveTimestamp, message.getSendTime(), message.getMessageUUID());
+
         log.info("Received:\n" +
                         "MSG_ID:    {}\n\n" +
                         "FROM:      {}\n" +

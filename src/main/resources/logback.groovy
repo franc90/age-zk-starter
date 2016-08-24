@@ -1,5 +1,7 @@
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
+import ch.qos.logback.classic.filter.ThresholdFilter
 import ch.qos.logback.core.ConsoleAppender
+import ch.qos.logback.core.FileAppender
 
 def bySecond = timestamp("yyyyMMdd'T'HHmmss")
 
@@ -9,8 +11,18 @@ appender("CONSOLE", ConsoleAppender) {
     }
 }
 
+appender("TEST_RESULTS", FileAppender) {
+    file = "results/result-${bySecond}.txt"
+    encoder(PatternLayoutEncoder) {
+        pattern = '%msg%n'
+    }
+    filter(ThresholdFilter) {
+        level = WARN
+    }
+}
+
 root(DEBUG, ["CONSOLE"])
-logger("org.age.akka", TRACE)
+logger("org.age.zk", WARN, ["TEST_RESULTS"])
 logger("org.springframework", INFO)
 logger("com.hazelcast", INFO)
 logger("org.apache.zookeeper", INFO)

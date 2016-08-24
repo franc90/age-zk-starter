@@ -4,6 +4,7 @@ import org.age.zk.services.AbstractWatcher;
 import org.age.zk.services.discovery.DiscoveryConsts;
 import org.age.zk.services.discovery.watcher.events.MembersUpdatedEvent;
 import org.age.zk.services.discovery.watcher.events.StopApplicationEvent;
+import org.age.zk.utils.TimeUtils;
 import org.apache.zookeeper.WatchedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,10 @@ public class LifecycleWatcherImpl extends AbstractWatcher implements LifecycleWa
             case NodeChildrenChanged:
                 log.debug("Received {} of type {}. Sending children updated event.", event, event.getType());
                 eventBus.post(new MembersUpdatedEvent());
+
+                long timestamp = System.currentTimeMillis();
+                log.warn("{},add_or_remove,{}", TimeUtils.toString(timestamp), timestamp);
+
                 break;
             case NodeDeleted:
                 log.debug("Received {} of type {}. Sending stop application event.", event, event.getType());

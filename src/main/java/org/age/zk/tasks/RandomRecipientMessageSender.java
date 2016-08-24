@@ -5,6 +5,7 @@ import org.age.zk.services.communication.message.Message;
 import org.age.zk.services.communication.watcher.events.SendMessageEvent;
 import org.age.zk.services.identity.IdentityService;
 import org.age.zk.services.topology.TopologyService;
+import org.age.zk.utils.TimeUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,9 @@ public class RandomRecipientMessageSender implements Task {
         String recipientId = getRecipientId();
         long sendTimestamp = System.currentTimeMillis();
         String messageUUID = UUID.randomUUID().toString();
+
+        log.warn("{},snd,{},{}", TimeUtils.toString(sendTimestamp), sendTimestamp, messageUUID);
+
         Message msg = new Message(identityService.getNodeId(), recipientId, messageUUID, sendTimestamp, "RandomRecipientMessageSender message");
 
         return new SendMessageEvent(msg);
