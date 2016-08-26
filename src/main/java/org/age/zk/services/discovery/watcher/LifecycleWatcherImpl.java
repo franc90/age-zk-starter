@@ -4,16 +4,20 @@ import org.age.zk.services.AbstractWatcher;
 import org.age.zk.services.discovery.DiscoveryConsts;
 import org.age.zk.services.discovery.watcher.events.MembersUpdatedEvent;
 import org.age.zk.services.discovery.watcher.events.StopApplicationEvent;
-import org.age.zk.utils.TimeUtils;
+import org.age.zk.services.test.MembershipTracker;
 import org.apache.zookeeper.WatchedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LifecycleWatcherImpl extends AbstractWatcher implements LifecycleWatcher {
 
     private static final Logger log = LoggerFactory.getLogger(LifecycleWatcherImpl.class);
+
+    @Autowired
+    private MembershipTracker membershipTracker;
 
     @Override
     public void process(WatchedEvent event) {
@@ -22,8 +26,7 @@ public class LifecycleWatcherImpl extends AbstractWatcher implements LifecycleWa
                 log.debug("Received {} of type {}. Sending children updated event.", event, event.getType());
                 eventBus.post(new MembersUpdatedEvent());
 
-                long timestamp = System.currentTimeMillis();
-                log.warn("{},add_or_remove,{}", TimeUtils.toString(timestamp), timestamp);
+                membershipTracker.checkMembershipChange();
 
                 break;
             case NodeDeleted:

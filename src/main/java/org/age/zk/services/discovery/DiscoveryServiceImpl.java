@@ -3,6 +3,7 @@ package org.age.zk.services.discovery;
 import com.google.common.collect.Sets;
 import org.age.zk.services.AbstractService;
 import org.age.zk.services.discovery.watcher.LifecycleWatcher;
+import org.age.zk.utils.TimeUtils;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,8 @@ public class DiscoveryServiceImpl extends AbstractService implements DiscoverySe
         String id = nodeId.substring(nodeId.lastIndexOf("/") + 1);
         identityService.setNodeId(id);
 
+        long timestamp = System.currentTimeMillis();
+        log.warn("{},ini,{},{}", TimeUtils.toString(timestamp), timestamp, id);
         log.info("Created member node {}", nodeId);
     }
 
@@ -63,6 +66,9 @@ public class DiscoveryServiceImpl extends AbstractService implements DiscoverySe
     public void stop() {
         log.debug("Stopping discovery service");
         running.set(false);
+
+        long timestamp = System.currentTimeMillis();
+        log.warn("{},ext,{},{}", TimeUtils.toString(timestamp), timestamp, identityService.getNodeId());
         log.debug("Discovery service stopped");
     }
 
